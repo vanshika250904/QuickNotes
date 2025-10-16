@@ -20,6 +20,9 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.get('/', (req, res) => {
+  res.send('Server is running!');
+});
 
 app.use('/auth', authRoutes);
 app.use('/notes', noteRoutes);
