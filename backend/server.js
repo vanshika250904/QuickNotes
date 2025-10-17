@@ -24,6 +24,10 @@ app.get('/', (req, res) => {
   res.send('Server is running!');
 });
 
+app.get('/', (req, res) => {
+  res.send('Server is running!');
+});
+
 app.use('/auth', authRoutes);
 app.use('/notes', noteRoutes);
 
