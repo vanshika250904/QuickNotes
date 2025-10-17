@@ -11,14 +11,14 @@ router.get("/google", passport.authenticate("google", {
 router.get(
   "/google/callback",
   passport.authenticate("google", {
-    successRedirect: "http://localhost:3000/",
-    failureRedirect: "http://localhost:3000/login"
+    successRedirect: "https://quicknotes-1-g9k1.onrender.com/",
+    failureRedirect: "https://quicknotes-1-g9k1.onrender.com/login"
   })
 );
 
 router.get("/logout", (req, res) => {
   req.logout(() => {
-    res.redirect("http://localhost:3000/login");
+    res.redirect("https://quicknotes-1-g9k1.onrender.com/login");
   });
 });
 
