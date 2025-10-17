@@ -10,7 +10,7 @@ function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    axios.get("http://localhost:5000/auth/user").then(res => setUser(res.data));
+    axios.get("https://quicknotes-1-g9k1.onrender.com/auth/user").then(res => setUser(res.data));
   }, []);
 
   return (
