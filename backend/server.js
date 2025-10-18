@@ -1,5 +1,4 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import session from 'express-session';
 import passport from 'passport';
 import dotenv from 'dotenv';
@@ -9,7 +8,7 @@ import noteRoutes from './routes/noteRoutes.js';
 import './config/passport.js';
 
 import { createClient } from 'redis';
-import RedisStoreConstructor from 'connect-redis';
+import * as connectRedis from 'connect-redis'; // <-- named import, do NOT use default
 
 dotenv.config();
 const app = express();
@@ -17,19 +16,18 @@ const app = express();
 // --- CORS ---
 app.use(
   cors({
-    origin: 'https://quicknotes-3.onrender.com', // frontend URL
+    origin: 'https://quicknotes-3.onrender.com',
     credentials: true,
   })
 );
 
-// --- Body parser ---
 app.use(express.json());
 
 // --- Redis + session ---
-const RedisStore = RedisStoreConstructor(session);
+const RedisStore = connectRedis.default(session) || connectRedis.RedisStore || connectRedis.ConnectRedis; // safe fallback
 
 const redisClient = createClient({
-  url: process.env.REDIS_URL, // set this in your Render environment
+  url: process.env.REDIS_URL,
 });
 redisClient.connect().catch(console.error);
 
@@ -40,9 +38,9 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true,      // HTTPS only
-      httpOnly: true,    
-      sameSite: 'none',  // cross-origin
+      secure: true,
+      httpOnly: true,
+      sameSite: 'none',
       maxAge: 24 * 60 * 60 * 1000,
     },
   })
@@ -61,14 +59,13 @@ app.get('/', (req, res) => {
   res.send('Server is running!');
 });
 
-// --- MongoDB connection ---
+// --- MongoDB ---
+import mongoose from 'mongoose';
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.log(err));
 
-// --- Start server ---
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(process.env.PORT || 5000, () => {
+  console.log(`Server running on port ${process.env.PORT || 5000}`);
 });
