@@ -27,6 +27,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={user ? <Notes user={user} /> : <Login />} />
+      <Route path="/notes" element={user ? <Notes user={user} /> : <Login />} />
       <Route path="/login" element={<Login />} />
     </Routes>
   );
