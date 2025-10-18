@@ -4,7 +4,7 @@ import axios from "axios";
 import Login from "./components/Login";
 import Notes from "./components/Notes";
 
-axios.defaults.withCredentials = true;
+axios.defaults.withCredentials = true; // important for sessions
 
 function AppWrapper() {
   return (
@@ -19,12 +19,11 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/auth/user`, { withCredentials: true })
+    axios.get(process.env.REACT_APP_BACKEND_URL + "/auth/user", { withCredentials: true })
       .then(res => {
         if (res.data) {
           setUser(res.data);
-          navigate("/notes");
+          navigate("/notes"); // redirect to notes if logged in
         } else {
           navigate("/login");
         }
