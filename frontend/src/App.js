@@ -18,24 +18,23 @@ function App() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    axios.get(process.env.REACT_APP_BACKEND_URL + "/auth/user", { withCredentials: true })
-      .then(res => {
-        if (res.data) {
-          setUser(res.data);
-          navigate("/notes"); // redirect to notes if logged in
-        } else {
-          navigate("/login");
-        }
-      })
-      .catch(() => navigate("/login"));
-  }, []);
+ useEffect(() => {
+  axios
+    .get(`${process.env.REACT_APP_BACKEND_URL}/auth/user`, { withCredentials: true })
+    .then((res) => {
+      if (res.data) setUser(res.data);
+    })
+    .catch(() => {
+      navigate("/login");
+    });
+}, []);
+
 
   return (
     <Routes>
-      <Route path="/" element={user ? <Notes user={user} /> : <Login />} />
-      <Route path="/notes" element={user ? <Notes user={user} /> : <Login />} />
-      <Route path="/login" element={<Login />} />
+    <Route path="/" element={<LoginRedirect />} />
+    <Route path="/notes" element={user ? <Notes user={user} /> : <Login />} />
+    <Route path="/login" element={<Login />} />
     </Routes>
   );
 }
