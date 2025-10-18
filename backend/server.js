@@ -8,8 +8,8 @@ import authRoutes from './routes/authRoutes.js';
 import noteRoutes from './routes/noteRoutes.js';
 import './config/passport.js';
 
-import RedisStore from 'connect-redis';
 import { createClient } from 'redis';
+import { default as connectRedis } from 'connect-redis';
 
 dotenv.config();
 const app = express();
@@ -24,9 +24,9 @@ app.use(
 
 app.use(express.json());
 
-// Redis session setup
+const RedisStore = connectRedis(session);
 const redisClient = createClient({ url: process.env.REDIS_URL });
-redisClient.connect().catch(console.error);
+await redisClient.connect().catch(console.error);
 
 app.use(
   session({
@@ -35,13 +35,14 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true,     // HTTPS required
+      secure: true,
       httpOnly: true,
-      sameSite: "none", // cross-origin
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      sameSite: "none",
+      maxAge: 24*60*60*1000,
     },
   })
 );
+
 
 // Passport
 app.use(passport.initialize());
@@ -61,3 +62,8 @@ mongoose.connect(process.env.MONGO_URI)
 
 // Start server
 app.listen(process.env.PORT, () => console.log(`Server running on port ${process.env.PORT}`));
+
+
+
+
+
