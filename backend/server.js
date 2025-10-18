@@ -8,7 +8,7 @@ import noteRoutes from './routes/noteRoutes.js';
 import './config/passport.js';
 
 import { createClient } from 'redis';
-import * as connectRedis from 'connect-redis'; // <-- named import, do NOT use default
+import { RedisStore } from 'connect-redis';  // ✅ correct named import
 
 dotenv.config();
 const app = express();
@@ -24,10 +24,8 @@ app.use(
 app.use(express.json());
 
 // --- Redis + session ---
-const RedisStore = connectRedis.default(session) || connectRedis.RedisStore || connectRedis.ConnectRedis; // safe fallback
-
 const redisClient = createClient({
-  url: process.env.REDIS_URL,
+  url: process.env.REDIS_URL,  // your Redis connection URL
 });
 redisClient.connect().catch(console.error);
 
@@ -38,9 +36,9 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true,
+      secure: true,      // HTTPS required
       httpOnly: true,
-      sameSite: 'none',
+      sameSite: 'none',  // cross-origin
       maxAge: 24 * 60 * 60 * 1000,
     },
   })
