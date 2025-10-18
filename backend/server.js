@@ -8,14 +8,14 @@ import authRoutes from './routes/authRoutes.js';
 import noteRoutes from './routes/noteRoutes.js';
 import './config/passport.js';
 import { createClient } from 'redis';
-import * as connectRedis from 'connect-redis';
+import { createClient as createRedisStoreClient, RedisStore as ConnectRedisStore } from "connect-redis";
 
 
 dotenv.config();
 const app = express();
 
 // ----------------- Redis Setup -----------------
-const RedisStore = connectRedis.default(session);
+const RedisStore = ConnectRedisStore(session);
 const redisClient = createClient({ url: process.env.REDIS_URL });
 redisClient.connect().catch(console.error);
 
@@ -34,10 +34,10 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true,
+      secure: true,       // HTTPS required
       httpOnly: true,
       sameSite: "none",
-      maxAge: 24*60*60*1000,
+      maxAge: 24 * 60 * 60 * 1000,
     },
   })
 );
