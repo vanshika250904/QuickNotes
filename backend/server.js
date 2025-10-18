@@ -16,7 +16,7 @@ const app = express();
 // --- CORS ---
 app.use(
   cors({
-    origin: 'https://quicknotes-3.onrender.com',
+    origin: process.env.FRONTEND_URL || 'https://quicknotes-3.onrender.com',
     credentials: true,
   })
 );

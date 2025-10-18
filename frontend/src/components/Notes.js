@@ -6,25 +6,25 @@ export default function Notes({ user }) {
   const [text, setText] = useState("");
 
   const fetchNotes = async () => {
-    const res = await axios.get("https://quicknotes-1-g9k1.onrender.com/auth/user", { withCredentials: true });
+    const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/notes`, { withCredentials: true });
     setNotes(res.data);
   };
 
   const addNote = async () => {
     if (text.trim()) {
-      await axios.post("https://quicknotes-1-g9k1.onrender.com/notes", { content: text });
+  await axios.post(`${process.env.REACT_APP_BACKEND_URL}/notes`, { content: text }, { withCredentials: true });
       setText("");
       fetchNotes();
     }
   };
 
   const deleteNote = async (id) => {
-    await axios.delete(`https://quicknotes-1-g9k1.onrender.com/notes/${id}`);
+  await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/notes/${id}`, { withCredentials: true });
     fetchNotes();
   };
 
   const logout = () => {
-    window.location.href = "https://quicknotes-1-g9k1.onrender.com/auth/logout";
+  window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/logout`;
   };
 
   useEffect(() => {

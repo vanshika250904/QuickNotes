@@ -2,7 +2,7 @@ import React from "react";
 
 export default function Login() {
   const handleLogin = () => {
-    window.location.href = "https://quicknotes-1-g9k1.onrender.com/auth/google";
+    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/google`;
   };
 
   return (
