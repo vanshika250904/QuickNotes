@@ -6,17 +6,25 @@ import Notes from "./components/Notes";
 
 axios.defaults.withCredentials = true;
 
+function AppWrapper() {
+  return (
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  );
+}
+
 function App() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get("https://quicknotes-1-g9k1.onrender.com/auth/user", { withCredentials: true })
+    // Check if user is already logged in
+    axios.get("https://quicknotes-1-g9k1.onrender.com/auth/user")
       .then(res => {
         if (res.data) {
           setUser(res.data);
-          navigate("/"); // or navigate("/notes") if you prefer
+          navigate("/notes"); // redirect to notes if logged in
         } else {
           navigate("/login");
         }
@@ -33,11 +41,4 @@ function App() {
   );
 }
 
-// Wrap BrowserRouter outside App
-export default function RootApp() {
-  return (
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  );
-}
+export default AppWrapper;

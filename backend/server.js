@@ -11,49 +11,48 @@ import './config/passport.js';
 dotenv.config();
 const app = express();
 
-
 app.use(express.json());
+
+
 app.use(
   cors({
-    origin: "https://quicknotes-3.onrender.com",
+    origin: "https://quicknotes-3.onrender.com", // your deployed frontend URL
     credentials: true,
   })
 );
 
-app.set("trust proxy", 1);
+// Sessions
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true,      
-      httpOnly: true,    
-      sameSite: "none",  
-      maxAge: 24 * 60 * 60 * 1000 
+      secure: true,       // HTTPS required
+      httpOnly: true,
+      sameSite: "none",   // cross-origin cookies
+      maxAge: 24*60*60*1000,
     }
   })
 );
 
-
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get('/', (req, res) => {
-  res.send('Server is running!');
-});
-
-app.get('/', (req, res) => {
-  res.send('Server is running!');
-});
-
+// Routes
 app.use('/auth', authRoutes);
 app.use('/notes', noteRoutes);
 
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.log(err));
-
-app.listen(process.env.PORT, () => {
-    console.log(`Server running on port ${process.env.PORT}`);
+// Simple health check
+app.get('/', (req, res) => {
+  res.send('Server is running!');
 });
+
+// MongoDB connection
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.log(err));
+
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
