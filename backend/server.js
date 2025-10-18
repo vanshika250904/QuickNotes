@@ -8,13 +8,14 @@ import authRoutes from './routes/authRoutes.js';
 import noteRoutes from './routes/noteRoutes.js';
 import './config/passport.js';
 import { createClient } from 'redis';
-import connectRedis from 'connect-redis';
+import * as connectRedis from 'connect-redis';
+
 
 dotenv.config();
 const app = express();
 
 // ----------------- Redis Setup -----------------
-const RedisStore = connectRedis(session);
+const RedisStore = connectRedis.default(session);
 const redisClient = createClient({ url: process.env.REDIS_URL });
 redisClient.connect().catch(console.error);
 
@@ -26,18 +27,20 @@ app.use(cors({
 
 app.use(express.json());
 
-app.use(session({
-  store: new RedisStore({ client: redisClient }),
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: true,       // HTTPS only
-    httpOnly: true,
-    sameSite: "none",   // cross-origin
-    maxAge: 24 * 60 * 60 * 1000,
-  }
-}));
+app.use(
+  session({
+    store: new RedisStore({ client: redisClient }),
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: true,
+      httpOnly: true,
+      sameSite: "none",
+      maxAge: 24*60*60*1000,
+    },
+  })
+);
 
 app.use(passport.initialize());
 app.use(passport.session());
