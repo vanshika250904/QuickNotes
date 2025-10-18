@@ -12,11 +12,9 @@ router.get("/google", passport.authenticate("google", {
 router.get(
   "/google/callback",
   passport.authenticate("google", {
-    failureRedirect: "https://quicknotes-3.onrender.com/login",
-  }),
-  (req, res) => {
-    res.redirect("https://quicknotes-3.onrender.com/notes");
-  }
+  successRedirect: "https://quicknotes-3.onrender.com/notes",
+  failureRedirect: "https://quicknotes-3.onrender.com/login"
+})
 );
 
 router.get("/logout", (req, res) => {
