@@ -11,15 +11,27 @@ import './config/passport.js';
 dotenv.config();
 const app = express();
 
-app.use(cors({ origin: 'https://quicknotes-1-g9k1.onrender.com', credentials: true }));
+
 app.use(express.json());
-app.use(session({
+app.use(
+  cors({
+    origin: "https://quicknotes-3.onrender.com",
+    credentials: true,
+  })
+);
+
+app.set("trust proxy", 1);
+app.use(
+  session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false
-}));
+    saveUninitialized: false,
+  })
+);
+
 app.use(passport.initialize());
 app.use(passport.session());
+
 app.get('/', (req, res) => {
   res.send('Server is running!');
 });

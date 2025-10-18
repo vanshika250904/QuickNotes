@@ -6,7 +6,7 @@ export default function Notes({ user }) {
   const [text, setText] = useState("");
 
   const fetchNotes = async () => {
-    const res = await axios.get("https://quicknotes-1-g9k1.onrender.com/notes");
+    const res = await axios.get("https://quicknotes-1-g9k1.onrender.com/auth/user", { withCredentials: true });
     setNotes(res.data);
   };
 
