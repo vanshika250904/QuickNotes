@@ -6,8 +6,14 @@ export default function Notes({ user }) {
   const [text, setText] = useState("");
 
   const fetchNotes = async () => {
-    const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/notes`, { withCredentials: true });
-    setNotes(res.data);
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/notes`, { withCredentials: true });
+      console.log('[Notes] fetchNotes response:', res.data);
+      setNotes(res.data || []);
+    } catch (err) {
+      console.error('[Notes] fetchNotes error', err);
+      setNotes([]);
+    }
   };
 
   const addNote = async () => {

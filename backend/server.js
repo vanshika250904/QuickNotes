@@ -36,13 +36,20 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true,      // HTTPS required
+      // Use secure cookies in production (requires HTTPS). Allow non-secure for local dev.
+      secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
       sameSite: 'none',  // cross-origin
       maxAge: 24 * 60 * 60 * 1000,
     },
   })
 );
+
+// Log session cookie config for debugging
+console.log('[server] session cookie config:', {
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'none',
+});
 
 // --- Passport ---
 app.use(passport.initialize());
