@@ -27,13 +27,38 @@ router.get('/google/callback', (req, res, next) => {
         console.error('[/auth/google/callback] req.logIn error', loginErr);
         return res.redirect(process.env.FRONTEND_URL + '/login');
       }
-      // After login, inspect session and cookie header
-      console.log('[/auth/google/callback] session:', req.sessionID ? { sessionID: req.sessionID } : null);
-      console.log('[/auth/google/callback] headers.cookie:', req.headers.cookie);
-      // Redirect to frontend notes page
-      return res.redirect(process.env.FRONTEND_URL + '/notes');
+      // After login, save the session to ensure session cookie is set before redirecting
+      req.session.save((saveErr) => {
+        if (saveErr) console.error('[/auth/google/callback] session save error', saveErr);
+        console.log('[/auth/google/callback] session saved:', req.sessionID ? { sessionID: req.sessionID } : null);
+        console.log('[/auth/google/callback] headers.cookie:', req.headers.cookie);
+        // Redirect to a backend-rendered success page (same origin) which will postMessage the user to the opener
+        return res.redirect('/auth/success');
+      });
     });
   })(req, res, next);
+});
+
+// OAuth success page shown inside popup: posts user to opener window then closes
+router.get('/success', (req, res) => {
+  const frontendOrigin = process.env.FRONTEND_URL || 'https://quicknotes-3.onrender.com';
+  const user = req.user ? { id: req.user._id || req.user.id, name: req.user.name, email: req.user.email } : null;
+  res.send(`<!doctype html>
+  <html>
+    <head><title>Auth success</title></head>
+    <body>
+      <script>
+        try {
+          const user = ${JSON.stringify(user)};
+          // Post the user to the opener (parent window) and then close the popup
+          if (window.opener && !window.opener.closed) {
+            window.opener.postMessage({ type: 'oauth', user }, '${frontendOrigin}');
+          }
+        } catch (e) { console.error(e); }
+        window.close();
+      </script>
+    </body>
+  </html>`);
 });
 
 // Logout

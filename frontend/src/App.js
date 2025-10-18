@@ -28,7 +28,17 @@ function App() {
           // leave user null
         })
         .finally(() => setLoading(false));
-    }, []);
+    // also listen for oauth popup messages
+    const onMessage = (e) => {
+      const allowedOrigin = process.env.REACT_APP_FRONTEND_URL || window.location.origin;
+      if (e.origin !== allowedOrigin) return;
+      if (e.data && e.data.type === 'oauth') {
+        if (e.data.user) setUser(e.data.user);
+      }
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
 
 
   return loading ? (
