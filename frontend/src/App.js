@@ -19,12 +19,12 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is already logged in
-    axios.get("https://quicknotes-1-g9k1.onrender.com/auth/user")
+    axios
+      .get(`${process.env.REACT_APP_BACKEND_URL}/auth/user`, { withCredentials: true })
       .then(res => {
         if (res.data) {
           setUser(res.data);
-          navigate("/notes"); // redirect to notes if logged in
+          navigate("/notes");
         } else {
           navigate("/login");
         }

@@ -8,34 +8,42 @@ import authRoutes from './routes/authRoutes.js';
 import noteRoutes from './routes/noteRoutes.js';
 import './config/passport.js';
 
+import RedisStore from 'connect-redis';
+import { createClient } from 'redis';
+
 dotenv.config();
 const app = express();
 
-app.use(express.json());
-
-
+// CORS configuration
 app.use(
   cors({
-    origin: "https://quicknotes-3.onrender.com", // your deployed frontend URL
+    origin: process.env.FRONTEND_URL, // frontend URL on Render
     credentials: true,
   })
 );
 
-// Sessions
+app.use(express.json());
+
+// Redis session setup
+const redisClient = createClient({ url: process.env.REDIS_URL });
+redisClient.connect().catch(console.error);
+
 app.use(
   session({
+    store: new RedisStore({ client: redisClient }),
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true,       // HTTPS required
+      secure: true,     // HTTPS required
       httpOnly: true,
-      sameSite: "none",   // cross-origin cookies
-      maxAge: 24*60*60*1000,
-    }
+      sameSite: "none", // cross-origin
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    },
   })
 );
 
+// Passport
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -43,10 +51,8 @@ app.use(passport.session());
 app.use('/auth', authRoutes);
 app.use('/notes', noteRoutes);
 
-// Simple health check
-app.get('/', (req, res) => {
-  res.send('Server is running!');
-});
+// Default route
+app.get('/', (req, res) => res.send('Server is running!'));
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
@@ -54,5 +60,4 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.log(err));
 
 // Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(process.env.PORT, () => console.log(`Server running on port ${process.env.PORT}`));
