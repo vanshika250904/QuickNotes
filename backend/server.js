@@ -1,29 +1,31 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import session from 'express-session';
-import passport from 'passport';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import authRoutes from './routes/authRoutes.js';
-import noteRoutes from './routes/noteRoutes.js';
-import './config/passport.js';
-import { createClient } from 'redis';
-import { createClient as createRedisStoreClient, RedisStore as ConnectRedisStore } from "connect-redis";
-
+import express from "express";
+import mongoose from "mongoose";
+import session from "express-session";
+import passport from "passport";
+import dotenv from "dotenv";
+import cors from "cors";
+import authRoutes from "./routes/authRoutes.js";
+import noteRoutes from "./routes/noteRoutes.js";
+import "./config/passport.js";
+import RedisStore from "connect-redis";
+import { createClient } from "redis";
 
 dotenv.config();
 const app = express();
 
-// ----------------- Redis Setup -----------------
-const RedisStore = ConnectRedisStore(session);
-const redisClient = createClient({ url: process.env.REDIS_URL });
+// Redis client setup
+const redisClient = createClient({
+  url: process.env.REDIS_URL,
+});
 redisClient.connect().catch(console.error);
 
-// ----------------- Middlewares -----------------
-app.use(cors({
-  origin: process.env.FRONTEND_URL, // e.g., https://quicknotes-3.onrender.com
-  credentials: true
-}));
+// Middlewares
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL, // e.g., "https://quicknotes-3.onrender.com"
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
@@ -34,10 +36,10 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true,       // HTTPS required
+      secure: true, // HTTPS required on Render
       httpOnly: true,
       sameSite: "none",
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
     },
   })
 );
@@ -45,18 +47,21 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// ----------------- Routes -----------------
-app.use('/auth', authRoutes);
-app.use('/notes', noteRoutes);
+// Routes
+app.use("/auth", authRoutes);
+app.use("/notes", noteRoutes);
 
-// Simple test
-app.get('/', (req, res) => res.send('Server is running!'));
+// Health check
+app.get("/", (req, res) => {
+  res.send("Server is running!");
+});
 
-// ----------------- DB & Server -----------------
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.log(err));
+// MongoDB connection
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.log(err));
 
-app.listen(process.env.PORT, () => console.log(`Server running on port ${process.env.PORT}`));
-
-
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
